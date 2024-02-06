@@ -20,6 +20,7 @@ public class Certificate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    private Integer accountNumber;
     private LocalDate startDate;
     private LocalDate finishDate;
     private float amount;
@@ -31,6 +32,8 @@ public class Certificate {
     private Boolean isAbleToPayBefore;
     private String status; //cancell,active,finished
     private int duration;
+
+    private Client client;
 
 
     @OneToMany

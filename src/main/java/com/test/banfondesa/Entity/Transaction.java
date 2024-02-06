@@ -20,10 +20,8 @@ public class Transaction {
     private Integer id;
     private LocalDate date;
     private String type; //deposit-retire
+    private String message;
     private float amount;
-    private float cancellInterest;
-    private float totalRetire;
-
 
     @ManyToOne
     private Certificate certificate;

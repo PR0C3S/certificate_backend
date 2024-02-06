@@ -11,7 +11,6 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CertificateDTO {
-
     private Date startDate;
     private Date finishDate;
     private String amount;

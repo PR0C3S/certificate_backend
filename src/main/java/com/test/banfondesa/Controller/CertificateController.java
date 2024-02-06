@@ -117,7 +117,7 @@ public class CertificateController
             throw new ResourceNotFoundException("No se pudo encontrar el certificado con el id: "+id);
         }
         int monthsBetween = LocalDate.now().minusMonths(certificate.getStartDate().getMonthValue()).getMonthValue();
-        return new BalanceDTO(certificate.getCurrentAmount(monthsBetween),certificate);
+        return new BalanceDTO(certificate.getCurrentAmount(monthsBetween),certificate.getId(),certificate.getAccountNumber(),certificate.getStartDate(),certificate.getFinishDate(),certificate.getAmount(),certificate.getStatus(),certificate.getClient().getDNI(),certificate.getClient().getFullName());
     }
 
     @GetMapping("/balancecliente/{idcliente}")
