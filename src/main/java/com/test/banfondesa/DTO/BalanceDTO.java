@@ -1,26 +1,26 @@
 package com.test.banfondesa.DTO;
 
 
-import com.test.banfondesa.Entity.Certificate;
+import com.test.banfondesa.Entity.Transaction;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
-import java.util.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class BalanceDTO {
-    private float balance;
-    private Integer idCertificado;
-    private Integer numeroCuenta;
-    private Date startDate;
-    private Date finishDate;
+    private Integer id;
+    private Integer accountNumber;
+    private LocalDate startDate;
+    private LocalDate  finishDate;
     private float amount;
+    private String currency;
     private String status;
     private String dni;
-    private String nameClient;
+    private String fullName;
+    private List<Transaction> transactions;
 
 }

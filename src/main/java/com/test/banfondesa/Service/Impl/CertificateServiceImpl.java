@@ -3,7 +3,6 @@ package com.test.banfondesa.Service.Impl;
 
 
 import com.test.banfondesa.Entity.Certificate;
-
 import java.util.List;
 
 public interface CertificateServiceImpl {

@@ -5,7 +5,6 @@ import com.test.banfondesa.Repository.ClientRepository;
 import com.test.banfondesa.Service.Impl.ClientServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service

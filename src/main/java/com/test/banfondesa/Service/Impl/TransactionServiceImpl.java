@@ -1,10 +1,6 @@
 package com.test.banfondesa.Service.Impl;
 
-
-
-
 import com.test.banfondesa.Entity.Transaction;
-
 import java.util.List;
 
 public interface TransactionServiceImpl {

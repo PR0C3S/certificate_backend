@@ -9,8 +9,6 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -38,7 +36,8 @@ public class ClientController
 
     @PostMapping("/created")
     public Client createClientPOST(@Valid @RequestBody ClientDTO newClient){
-        //Agregar validacion de dni, cedula, email y telefono
+
+        //Validate dni, email y telefono
         Client client = new Client(null, newClient.getDni(), newClient.getFullName(), newClient.getBirthday(),
                 newClient.getGender(), newClient.getLocation(), newClient.getEmail(), newClient.getPhone(),null);
         return clientService.save(client);
@@ -50,7 +49,7 @@ public class ClientController
         if(client == null){
             throw new ResourceNotFoundException("No se pudo encontrar el cliente con el id: "+id);
         }
-        //Agregar validacion de dni, cedula, email y telefono
+        //Validate dni, email y telefono
         client.setDni(updatedClient.getDni());
         client.setFullName(updatedClient.getFullName());
         client.setBirthday(updatedClient.getBirthday());

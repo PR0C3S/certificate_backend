@@ -6,7 +6,6 @@ import com.test.banfondesa.Repository.CertificateRepository;
 import com.test.banfondesa.Service.Impl.CertificateServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service

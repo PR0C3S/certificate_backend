@@ -1,8 +1,6 @@
 package com.test.banfondesa.Service.Impl;
 
-
 import com.test.banfondesa.Entity.Client;
-
 import java.util.List;
 
 public interface ClientServiceImpl {

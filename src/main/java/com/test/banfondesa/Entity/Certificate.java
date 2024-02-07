@@ -6,11 +6,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -21,18 +18,41 @@ public class Certificate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @GeneratedValue(strategy = GenerationType.AUTO)
+
+    @Column(nullable = false)
     private Integer accountNumber;
-    private Date startDate;
-    private Date finishDate;
+
+    @Column(nullable = false)
+    private LocalDate startDate;
+
+    @Column(nullable = false)
+    private LocalDate finishDate;
+
+    @Column(nullable = false)
     private float amount;
+
+    @Column(nullable = false)
     private String currency;
+
+    @Column(nullable = false)
     private float earnInterest;
+
+    @Column(nullable = false)
     private float cancellInterest;
-    private Boolean isAbleToCancellBefore;
-    private Boolean isPenaltyForCancellBefore;
-    private Boolean isAbleToPayBefore;
+
+    @Column(nullable = false)
+    private Boolean isAbleToCancellBefore=true;
+
+    @Column(nullable = false)
+    private Boolean isPenaltyForCancellBefore=true;
+
+    @Column(nullable = false)
+    private Boolean isAbleToPayBefore=true;
+
+    @Column(nullable = false)
     private String status; //cancell,active,finished
+
+    @Column(nullable = false)
     private int duration;
 
     @ManyToOne
@@ -41,20 +61,13 @@ public class Certificate {
     private Client client;
 
 
-    @OneToMany(mappedBy="certificate")
-    private List<Transaction> transactions;
-
-    public void Addtransaction(Transaction newTransaction){
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Transaction> transactions = new ArrayList<>();
+    
+    public void Add(Transaction newTransaction){
+        if(transactions==null){
+            transactions = new ArrayList<>();
+        }
         transactions.add(newTransaction);
-    }
-
-
-    public float getCurrentAmount(int months){
-        return amount*earnInterest*months;
-    }
-
-
-    public float getCurrentCancelInterest(int months){
-        return amount*cancellInterest*months;
     }
 }
