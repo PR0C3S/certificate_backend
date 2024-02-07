@@ -16,19 +16,14 @@ public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private String DNI;
+    private String dni;
     private String fullName;
-
     private Date birthday;
     private String gender;
     private String location;
     private String email;
     private String phone;
 
-
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(mappedBy="client")
     private List<Certificate> certificates;
-
-
-
 }

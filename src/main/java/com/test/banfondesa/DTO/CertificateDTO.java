@@ -13,7 +13,9 @@ import java.util.Date;
 public class CertificateDTO {
     private Date startDate;
     private Date finishDate;
-    private String amount;
+    private int duration;
+    private Integer idClient;
+    private float amount;
     private String currency;
     private float earnInterest;
     private float cancellInterest;

@@ -12,7 +12,9 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TransactionDTO {
-    private LocalDate date;
+    private Date date;
     private String type; //retire,deposit
+    private String message;
     private int amount;
+    private Integer certificateId;
 }

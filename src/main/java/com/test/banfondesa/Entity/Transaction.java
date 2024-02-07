@@ -1,5 +1,6 @@
 package com.test.banfondesa.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,11 +19,13 @@ public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private LocalDate date;
+    private Date date;
     private String type; //deposit-retire
     private String message;
     private float amount;
 
     @ManyToOne
+    @JoinColumn(name="certificate_id", nullable=false)
+    @JsonIgnore
     private Certificate certificate;
 }

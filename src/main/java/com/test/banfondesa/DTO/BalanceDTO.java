@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 @Data
 @AllArgsConstructor
@@ -15,8 +16,8 @@ public class BalanceDTO {
     private float balance;
     private Integer idCertificado;
     private Integer numeroCuenta;
-    private LocalDate startDate;
-    private LocalDate finishDate;
+    private Date startDate;
+    private Date finishDate;
     private float amount;
     private String status;
     private String dni;

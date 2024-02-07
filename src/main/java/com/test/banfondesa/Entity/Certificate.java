@@ -1,6 +1,7 @@
 package com.test.banfondesa.Entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,9 +21,10 @@ public class Certificate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer accountNumber;
-    private LocalDate startDate;
-    private LocalDate finishDate;
+    private Date startDate;
+    private Date finishDate;
     private float amount;
     private String currency;
     private float earnInterest;
@@ -33,15 +35,19 @@ public class Certificate {
     private String status; //cancell,active,finished
     private int duration;
 
+    @ManyToOne
+    @JoinColumn(name="client_id", nullable=false)
+    @JsonIgnore
     private Client client;
 
 
-    @OneToMany
-    private List<Transaction> transactions = new ArrayList<>();
+    @OneToMany(mappedBy="certificate")
+    private List<Transaction> transactions;
 
     public void Addtransaction(Transaction newTransaction){
         transactions.add(newTransaction);
     }
+
 
     public float getCurrentAmount(int months){
         return amount*earnInterest*months;

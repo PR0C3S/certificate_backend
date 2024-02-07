@@ -3,6 +3,7 @@ package com.test.banfondesa.Controller;
 
 import com.test.banfondesa.DTO.ClientDTO;
 import com.test.banfondesa.Entity.Client;
+import com.test.banfondesa.Exception.ResourceNotFoundException;
 import com.test.banfondesa.Service.ClientService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +29,17 @@ public class ClientController
 
     @GetMapping("/update/{id}")
     public Client updateClientGET(@PathVariable Integer id){
-        return clientService.getById(id);
+        Client client = clientService.getById(id);
+        if(client == null){
+            throw new ResourceNotFoundException("No se pudo encontrar el cliente con el id: "+id);
+        }
+        return  client;
     }
 
     @PostMapping("/created")
     public Client createClientPOST(@Valid @RequestBody ClientDTO newClient){
-        Client client = new Client(null, newClient.getDni(), newClient.getFullname(), newClient.getBirthday(),
+        //Agregar validacion de dni, cedula, email y telefono
+        Client client = new Client(null, newClient.getDni(), newClient.getFullName(), newClient.getBirthday(),
                 newClient.getGender(), newClient.getLocation(), newClient.getEmail(), newClient.getPhone(),null);
         return clientService.save(client);
     }
@@ -42,11 +48,11 @@ public class ClientController
     public ResponseEntity<Client> updateClientPATCH(@PathVariable Integer id, @Valid @RequestBody ClientDTO updatedClient){
         Client client = clientService.getById(id);
         if(client == null){
-            throw new RuntimeException();
+            throw new ResourceNotFoundException("No se pudo encontrar el cliente con el id: "+id);
         }
-
-        client.setDNI(updatedClient.getDni());
-        client.setFullName(updatedClient.getFullname());
+        //Agregar validacion de dni, cedula, email y telefono
+        client.setDni(updatedClient.getDni());
+        client.setFullName(updatedClient.getFullName());
         client.setBirthday(updatedClient.getBirthday());
         client.setGender(updatedClient.getGender());
         client.setLocation(updatedClient.getLocation());

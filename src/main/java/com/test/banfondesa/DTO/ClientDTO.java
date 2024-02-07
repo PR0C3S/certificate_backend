@@ -12,7 +12,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class ClientDTO {
     private String dni;
-    private String fullname;
+    private String fullName;
     private Date birthday;
     private String gender;
     private String location;
