@@ -1,19 +1,21 @@
 package com.test.banfondesa.DTO;
 
-
+import com.test.banfondesa.Entity.Certificate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Date;
+import java.util.List;
+
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class RevenueDTO {
-    private String month;
-    private Date date;
-    private float balance;
+    private String currency;
+    private Integer idCertificate;
+    private String statusCertificate;
+    private Integer idClient;
+    private String nameCliente;
+    List<TransactionDTO> transactions;
 }

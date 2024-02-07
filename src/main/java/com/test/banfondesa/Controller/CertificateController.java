@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,11 +47,16 @@ public class CertificateController
         if(client ==null){
             throw new ResourceNotFoundException("No se pudo encontrar el cliente con el id: "+certificateDTO.getIdClient());
         }
+       
 
         Certificate certificate = new Certificate(null,null,certificateDTO.getStartDate(),certificateDTO.getFinishDate(),
                 certificateDTO.getAmount(),certificateDTO.getCurrency(),certificateDTO.getEarnInterest(),certificateDTO.getCancellInterest(),
                 certificateDTO.getIsAbleToCancellBefore(),certificateDTO.getIsPenaltyForCancellBefore(),certificateDTO.getIsAbleToPayBefore(),
-                certificateDTO.getStatus(),certificateDTO.getDuration(), client);
+                certificateDTO.getStatus(),certificateDTO.getDuration(), client,null);
+        
+        Transaction transaction = new Transaction(null,certificate.getStartDate(),"Created","Creacion del certificado",certificate.getAmount(),certificate);
+        certificate.add(transaction);
+       
         return certificateService.save(certificate);
     }
 
@@ -66,120 +72,140 @@ public class CertificateController
           //Interes = MontoPrincipal*TasaDeInteres*PlazoEnDias/DiasDelAño(365)
         //IR = Interes*15%
         //Total de interes acreditable = Interes - IR
-
     }
-    @PostMapping("/certificado/retiro")
-    public Certificate withdrawalToCertificatePOST( @Valid @RequestBody TransactionDTO transactionDTO){
-        Certificate certificate = certificateService.getById(transactionDTO.getCertificateId());
-        if(certificate == null){
-            throw new ResourceNotFoundException("No se pudo encontrar el certificado con el id: "+transactionDTO.getCertificateId());
-        } else if(!certificate.getStatus().equalsIgnoreCase("Active")){
-            throw new ResourceNotFoundException("No se pudo retirar, el certificado con el id: "+transactionDTO.getCertificateId()+", no se encuentra activo.");
+
+    @GetMapping("/balance/cliente/{id}")
+    public List<BalanceDTO> getBalanceByClientGET(@PathVariable Integer id){
+        Client client = clientService.getById(id);
+        if(client==null){
+            throw new ResourceNotFoundException("No se pudo encontrar el cliente con el id: "+id);
         }
 
-        float earnInterest = 0;
-        float cancellInterest = 0;
-        int monthsBetween =0;
-        if(certificate.getFinishDate().before(transactionDTO.getDate())){
+        List<BalanceDTO> balances = new ArrayList<>();
+        for (Certificate certificate : client.getCertificates()) {
+            BalanceDTO balanceDTO = new BalanceDTO(certificate.getAmount(),certificate.getId(),certificate.getAccountNumber(),certificate.getStartDate(),certificate.getFinishDate(),certificate.getAmount(),certificate.getStatus(),certificate.getClient().getDni(),certificate.getClient().getFullName());
+            balances.add(balanceDTO);
+        }
+        return balances;
+    }
+
+
+    // Simulacion retiro a un certificado en especifico
+    @PostMapping("/certificado/retiro/{id}")
+    public Certificate withdrawalByIdToCertificatePOST( @PathVariable Integer id){
+        Certificate certificate = certificateService.getById(id);
+        if(certificate == null){
+            throw new ResourceNotFoundException("No se pudo encontrar el certificado con el id: "+id);
+        } else if(!certificate.getStatus().equalsIgnoreCase("Active")){
+            throw new ResourceNotFoundException("No se pudo retirar, el certificado con el id: "+id+", no se encuentra activo.");
+        }
+
+        Date today = new Date();
+        if(certificate.getFinishDate().before(today)){
             //with out penalty
             certificate.setStatus("FINISHED");
-            monthsBetween = certificate.getFinishDate().minusMonths(certificate.getStartDate().getMonthValue()).getMonthValue();
-
         }else{
             //with penalty
             certificate.setStatus("CANCELL");
-            monthsBetween = LocalDate.now().minusMonths(certificate.getStartDate().getMonthValue()).getMonthValue();
-            cancellInterest = certificate.getCurrentCancelInterest(monthsBetween);
+            float interestAmount = certificate.getAmount()*certificate.getCancellInterest();
+            Transaction transaction = new Transaction(null,today,"Retire","Intereses por cancelacion",interestAmount);
+            certificate.setAmount(certificate.getAmount()-interestAmount);
+            certificate.Add(transaction);
         }
-        earnInterest =certificate.getCurrentAmount(monthsBetween);
 
-        Transaction withdrawal = new Transaction(null,transactionDTO.getDate(), transactionDTO.getType(), earnInterest,cancellInterest,earnInterest-cancellInterest, certificate);
-
+        Transaction withdrawal = new Transaction(null,transactionDTO.getDate(), "Retire","Retiro del certificado", certificate.getAmount(),certificate);
+        certificate.Add(transaction);
+        certificate.setAmount(0);
         return certificateService.save(certificate);
     }
 
+    // Simulacion retiro a un certificado en especifico
+    @PostMapping("/certificado/retiro/cliente/{id}")
+    public List<Certificate> withdrawalByClientToCertificatePOST( @PathVariable Integer id){
+        Client client = clientService.getById(id);
+        if(client == null){
+            throw new ResourceNotFoundException("No se pudo encontrar el cliente con el id: "+id);
+        } 
 
-    // Simulacion deposito de meses de 1 certificado en especifico
-    @PostMapping("/deposito-v1")
-    public Transaction depositToCertificateV1POST(  @Valid @RequestBody TransactionDTO transactionDTO){
-        Certificate certificate = certificateService.getById(transactionDTO.getCertificateId());
+        Date today = new Date();
+        if(certificate.getFinishDate().before(today)){
+            //with out penalty
+            certificate.setStatus("FINISHED");
+        }else{
+            //with penalty
+            certificate.setStatus("CANCELL");
+            float interestAmount = certificate.getAmount()*certificate.getCancellInterest();
+            Transaction transaction = new Transaction(null,today,"Retire","Intereses por cancelacion",interestAmount);
+            certificate.setAmount(certificate.getAmount()-interestAmount);
+            certificate.Add(transaction);
+        }
+
+        Transaction withdrawal = new Transaction(null,transactionDTO.getDate(), "Retire","Retiro del certificado", certificate.getAmount(),certificate);
+        certificate.Add(transaction);
+        certificate.setAmount(0);
+        return certificateService.save(certificate);
+    }
+
+    // Simulacion deposito de meses a un certificado en especifico
+    @PostMapping("/deposito/{id}")
+    public Transaction depositToCertificateV1POST( @PathVariable Integer id){
+        Certificate certificate = certificateService.getById(id);
 
         if(certificate == null){
-            throw new ResourceNotFoundException("No se pudo encontrar el certificado con el id: "+transactionDTO.getCertificateId());
+            throw new ResourceNotFoundException("No se pudo encontrar el certificado con el id: "+id);
         }
         if(!certificate.getStatus().equalsIgnoreCase("Active")){
-            throw new ResourceNotFoundException("No se pudo depositar, el certificado con el id: "+transactionDTO.getCertificateId()+", no se encuentra activo.");
+            throw new ResourceNotFoundException("No se pudo depositar, el certificado con el id: "+id+", no se encuentra activo.");
         }
 
-        certificate.setAmount(certificate.getAmount()+transactionDTO.getAmount());
-        Transaction deposit = new Transaction(null,transactionDTO.getDate(), transactionDTO.getType(), transactionDTO.getMessage(), transactionDTO.getAmount(),certificate);
-        return transactionService.save(deposit);
+        //Agregar iterable que verifique cuantos depositos hay y realizar el deposito de los meses restantes
+        float earnMoney = certificate.getAmount()*certificate.getEarnInterest()/12;
+        certificate.setAmount(certificate.getAmount()+earnMoney);
+        Transaction deposit = new Transaction(null,null, "Deposit", "Ganancia del certificado", earnMoney,certificate);
+        certificate.Add(deposit);
+        certificateService.save(certificate);
+        return deposit;
     }
 
     // Simulacion deposito de meses de los certificados activos de un cliente
-    @PostMapping("/deposito-v2")
-    public Transaction depositToCertificateV2POST(  @Valid @RequestBody TransactionDTO transactionDTO){
-        Certificate certificate = certificateService.getById(transactionDTO.getCertificateId());
+    @PostMapping("/deposito/cliente/{id}")
+    public Transaction depositToCertificateV2POST(@PathVariable Integer id){
+        Client client = clientService.getById(id);
 
-
-
-        if(certificate == null){
-            throw new ResourceNotFoundException("No se pudo encontrar el certificado con el id: "+transactionDTO.getCertificateId());
-        }
-        if(!certificate.getStatus().equalsIgnoreCase("Active")){
-            throw new ResourceNotFoundException("No se pudo depositar, el certificado con el id: "+transactionDTO.getCertificateId()+", no se encuentra activo.");
+        if(client == null){
+            throw new ResourceNotFoundException("No se pudo encontrar el cliente con el id: "+id);
         }
 
-        certificate.setAmount(certificate.getAmount()+transactionDTO.getAmount());
-        Transaction deposit = new Transaction(null,transactionDTO.getDate(), transactionDTO.getType(), transactionDTO.getMessage(), transactionDTO.getAmount(),certificate);
-        return transactionService.save(deposit);
+        for (Certificate certificate : client.getCertificates()) {
+            if(certificate.getStatus().equalsIgnoreCase("Active")){
+                 //Agregar iterable que verifique cuantos depositos hay y realizar el deposito de los meses restantes
+                float earnMoney = certificate.getAmount()*certificate.getEarnInterest()/12;
+                certificate.setAmount(certificate.getAmount()+earnMoney);
+                Transaction deposit = new Transaction(null,null, "Deposit", "Ganancia del certificado", earnMoney,certificate);
+                return transactionService.save(deposit);
+            }
+            
+        }
     }
 
-
-    /*
-
-
-
-
-
-
     @GetMapping("/ganancia/{id}")
-    public RevenueWithCertificate getRevenueByIdGET(@PathVariable Integer id){
+    public RevenueDTO getRevenueByIdGET(@PathVariable Integer id){
         Certificate certificate = certificateService.getById(id);
         if(certificate==null){
             throw new ResourceNotFoundException("No se pudo encontrar el certificado con el id: "+id);
         }
-        List<RevenueDTO> revenueDTOList = new ArrayList<RevenueDTO>();
+        List<TransactionDTO> transactions = new ArrayList<>();
 
-        LocalDate initialDate = certificate.getStartDate();
+        Date initialDate = certificate.getStartDate();
+        float lastAmount= certificate.getAmount();
         for (int i = 0; i < certificate.getDuration() ; i++) {
             initialDate = initialDate.plusMonths(i);
-            RevenueDTO newRevenuew = new RevenueDTO(initialDate.getMonth().toString(),initialDate,certificate.getCurrentAmount(i));
-            revenueDTOList.add(newRevenuew);
+            float amount= lastAmount*(certificate.getEarnInterest()/12);
+            TransactionDTO transaction = new TransactionDTO(initialDate,"Deposit","I",initialDate,amount);
+            transactions.add(transaction);
+            lastAmount = amount;
         }
-        return new RevenueWithCertificate(revenueDTOList, certificate.getCurrency(), certificate.getId(), certificate.getStatus(), certificate.getId(), certificate.getId().toString());
+        return RevenueDTO(certificate.getCurrency(), certificate.getId(), certificate.getStatus(), certificate.getClient().getDni(), certificate.getClient().getFullName(), transactions);
     }
-
-
-
-    @GetMapping("/balancecliente/{idcliente}")
-    public List<BalanceDTO> getBalanceListByClientGET(@PathVariable Integer idcliente){
-
-        Client client = clientService.getById(idcliente);
-        if(client==null){
-            throw new ResourceNotFoundException("No se pudo encontrar el cliente con el id: "+idcliente);
-        }
-        List<Certificate> certificateList;
-        List<BalanceDTO> listBalanceDTO = new ArrayList<>();
-        for (Certificate certificate: certificateList){
-            int monthsBetween = LocalDate.now().minusMonths(certificate.getStartDate().getMonthValue()).getMonthValue();
-            listBalanceDTO.add(new BalanceDTO(certificate.getCurrentAmount(monthsBetween),certificate));
-        }
-
-        return listBalanceDTO;
-    }
-*/
-
-
 
 }

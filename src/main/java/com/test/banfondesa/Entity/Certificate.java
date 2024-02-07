@@ -43,18 +43,14 @@ public class Certificate {
 
     @OneToMany(mappedBy="certificate")
     private List<Transaction> transactions;
-
-    public void Addtransaction(Transaction newTransaction){
+    
+    public void Add(Transaction newTransaction){
+        if(transactions==null){
+            transactions = new ArrayList<>();
+        }
         transactions.add(newTransaction);
     }
 
 
-    public float getCurrentAmount(int months){
-        return amount*earnInterest*months;
-    }
-
-
-    public float getCurrentCancelInterest(int months){
-        return amount*cancellInterest*months;
-    }
+   
 }
