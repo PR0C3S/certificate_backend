@@ -2,7 +2,7 @@
 
 
 Esta aplicacion no requiere de crear la base de dato aparte se puede simplemente correr el proyecto y
-el mismo creara la base de datos y generara informacion de prueba.
+el mismo creara la base de datos.
 
 
 El servidor esta corriendo en el puerto 8000
