@@ -12,7 +12,7 @@ https://github.com/PR0C3S/certificate_backend
 comando de ejecucion:
 ./gradlew bootRun
 
-Backend: descargar y frontend:
+Frontend: descargar y frontend:
 https://github.com/PR0C3S/certificate_frontend
 commando de ejecucion:
 npm install -> npm run dev
