@@ -18,9 +18,12 @@ public class RevenueDTO {
 
     private String currency;
     private Integer id;
+    private Integer accountNumber;
     private LocalDate startDate;
     private LocalDate  finishDate;
     private String status;
+    private float earnInterest;
+    private float cancellInterest;
     private String dni;
     private String fullName;
     private float amount;

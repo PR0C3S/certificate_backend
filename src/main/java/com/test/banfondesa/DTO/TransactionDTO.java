@@ -12,6 +12,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class TransactionDTO {
 
-    @NotNull(message = "Fecha es requerido")
+   // @NotNull(message = "Fecha es requerido")
     private LocalDate date;
 }

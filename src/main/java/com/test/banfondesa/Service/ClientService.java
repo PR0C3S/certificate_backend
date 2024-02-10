@@ -27,6 +27,11 @@ public class ClientService implements ClientServiceImpl {
         return clientRepository.findById(id).orElse(null);
     }
 
+    @Override
+    public Client getByDni(String dni) {
+        return clientRepository.findByDni(dni);
+    }
+
 
     @Override
     public List<Client> getAll() {

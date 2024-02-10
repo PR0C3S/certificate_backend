@@ -9,6 +9,8 @@ public interface ClientServiceImpl {
 
     public Client getById(Integer id);
 
+    public Client getByDni(String dni);
+
     public List<Client> getAll();
 
 }

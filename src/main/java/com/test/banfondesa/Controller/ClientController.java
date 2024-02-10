@@ -43,6 +43,11 @@ public class ClientController
         return clientService.save(client);
     }
 
+    @GetMapping("/findByDni/{id}")
+    public Client findByDniGet(@PathVariable String id){
+      return  clientService.getByDni(id);
+    }
+
     @PatchMapping("/update/{id}")
     public ResponseEntity<Client> updateClientPATCH(@PathVariable Integer id, @Valid @RequestBody ClientDTO updatedClient){
         Client client = clientService.getById(id);

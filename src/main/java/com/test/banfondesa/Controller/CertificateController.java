@@ -76,7 +76,7 @@ public class CertificateController
         if(certificate==null){
             throw new ResourceNotFoundException("No se pudo encontrar el certificado con el id: "+id);
         }
-        return new BalanceDTO(certificate.getId(),certificate.getAccountNumber(),certificate.getStartDate(),certificate.getFinishDate(),certificate.getAmount(),certificate.getCurrency(),certificate.getStatus(),certificate.getClient().getDni(),certificate.getClient().getFullName(),certificate.getTransactions());
+        return new BalanceDTO(certificate.getId(),certificate.getAccountNumber(),certificate.getStartDate(),certificate.getFinishDate(),certificate.getAmount(),certificate.getCurrency(),certificate.getStatus(),certificate.getEarnInterest(),certificate.getCancellInterest(),certificate.getClient().getDni(),certificate.getClient().getFullName(),certificate.getTransactions());
     }
 
     @GetMapping("/balance/cliente/{id}")
@@ -88,7 +88,7 @@ public class CertificateController
 
         List<BalanceDTO> balances = new ArrayList<>();
         for (Certificate certificate : client.getCertificates()) {
-            BalanceDTO balanceDTO = new BalanceDTO(certificate.getId(),certificate.getAccountNumber(),certificate.getStartDate(),certificate.getFinishDate(),certificate.getAmount(),certificate.getCurrency(),certificate.getStatus(),certificate.getClient().getDni(),certificate.getClient().getFullName(),certificate.getTransactions());
+            BalanceDTO balanceDTO = new BalanceDTO(certificate.getId(),certificate.getAccountNumber(),certificate.getStartDate(),certificate.getFinishDate(),certificate.getAmount(),certificate.getCurrency(),certificate.getStatus(),certificate.getEarnInterest(),certificate.getCancellInterest(),certificate.getClient().getDni(),certificate.getClient().getFullName(),certificate.getTransactions());
             balances.add(balanceDTO);
         }
         return balances;
@@ -101,19 +101,23 @@ public class CertificateController
             throw new ResourceNotFoundException("No se pudo encontrar el certificado con el id: "+id);
         }
         List<Transaction> transactions = new ArrayList<>();
-
+        Transaction creation = certificate.getTransactions().get(0);
+        transactions.add(creation);
+        float earnInterestByMonth=certificate.getEarnInterest()/12;
+        float lastAmount = creation.getAmount();
+        float total = creation.getAmount();
         LocalDate simulateDate = certificate.getStartDate();
-        float amount = getCreateAmount(certificate);
-        float totalAmount = amount;
-        float lastAmount= amount;
-        for (int i = 0; i < certificate.getDuration() ; i++) {
-            float currentAmount= lastAmount*(certificate.getEarnInterest()/12);
-            Transaction transaction = new Transaction(i,simulateDate.plusMonths(i),deposit,"Interes generados",currentAmount);
-            transactions.add(transaction);
-            lastAmount = currentAmount;
-            totalAmount+=currentAmount;
+
+        for (int i = 1; i <= certificate.getDuration() ; i++) {
+            float earnMoney = lastAmount*earnInterestByMonth;
+            Transaction depositTransaction = new Transaction(i,simulateDate.plusMonths(i), deposit, "Intereses generados", earnMoney);
+            transactions.add(depositTransaction);
+            total+= earnMoney;
+            lastAmount = total;
+
         }
-        return new RevenueDTO(certificate.getCurrency(), certificate.getId(), certificate.getStartDate(),certificate.getFinishDate(),certificate.getStatus(), certificate.getClient().getDni(), certificate.getClient().getFullName(),certificate.getAmount(), totalAmount,transactions);
+
+        return new RevenueDTO(certificate.getCurrency(), certificate.getId(),certificate.getAccountNumber(), certificate.getStartDate(),certificate.getFinishDate(),certificate.getStatus(),certificate.getEarnInterest(),certificate.getCancellInterest(), certificate.getClient().getDni(), certificate.getClient().getFullName(),certificate.getAmount(), total,transactions);
     }
 
     // Simulacion deposito de 1 mes a un certificado en especifico
@@ -173,8 +177,8 @@ public class CertificateController
             LocalDate simulateDate = certificate.getStartDate();
             Transaction depositTransaction = new Transaction(null,simulateDate.plusMonths(i), deposit, "Intereses generados", earnMoney);
             certificate.Add(depositTransaction);
-            lastAmount = earnMoney;
-            total+=earnMoney;
+            total+= earnMoney;
+            lastAmount = total;
         }
         certificate.setAmount(total);
         certificate.setStatus(finished);

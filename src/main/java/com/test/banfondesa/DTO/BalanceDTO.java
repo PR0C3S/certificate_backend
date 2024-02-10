@@ -19,6 +19,8 @@ public class BalanceDTO {
     private float amount;
     private String currency;
     private String status;
+    private float earnInterest;
+    private float cancellInterest;
     private String dni;
     private String fullName;
     private List<Transaction> transactions;

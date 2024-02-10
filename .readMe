@@ -1,22 +1,23 @@
-
-
-
 Esta aplicacion no requiere de crear la base de dato aparte se puede simplemente correr el proyecto y
 el mismo creara la base de datos.
 
-
-El servidor esta corriendo en el puerto 8000
-
 Backend: descargar y correrlo:
+El servidor esta corriendo en el puerto 8000
 https://github.com/PR0C3S/certificate_backend
 comando de ejecucion:
 ./gradlew bootRun
 
 Frontend: descargar y frontend:
+El servidor esta corriendo en el puerto 5173
 https://github.com/PR0C3S/certificate_frontend
 commando de ejecucion:
 npm install -> npm run dev
 
+Rutas frontend:
+**PRIMERO SE DEBE CORRER EL BACKEND ANTES DE CONSUMIRLA**
+http://localhost:5173/clientes
+http://localhost:5173/certificados
+Desde esta app se puede realizar todas las acciones de la api
 
 Para acceder a swagger:
 localhost:8000/documentation
